@@ -9,4 +9,8 @@ const Profile = () => {
   );
 };
 
+Profile.navigationOptions = {
+  title: 'Perfil do Github',
+};
+
 export default Profile;

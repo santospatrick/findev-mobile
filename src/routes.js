@@ -4,9 +4,20 @@ import { createStackNavigator } from 'react-navigation-stack';
 import Main from './pages/Main';
 import Profile from './pages/Profile';
 
-const AppNavigator = createStackNavigator({
-  Main,
-  Profile,
-});
+const AppNavigator = createStackNavigator(
+  {
+    Main,
+    Profile,
+  },
+  {
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: '#7d40e7',
+      },
+      headerTintColor: '#fff',
+      headerTitleAlign: 'center',
+    },
+  },
+);
 
 export default createAppContainer(AppNavigator);
