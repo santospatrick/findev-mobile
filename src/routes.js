@@ -16,6 +16,7 @@ const AppNavigator = createStackNavigator(
       },
       headerTintColor: '#fff',
       headerTitleAlign: 'center',
+      headerBackTitleVisible: false,
     },
   },
 );

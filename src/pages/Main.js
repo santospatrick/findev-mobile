@@ -3,7 +3,7 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { Image, View, Text, StyleSheet } from 'react-native';
 
-const Main = () => {
+const Main = ({ navigation }) => {
   const [region, setRegion] = useState(null);
 
   useEffect(() => {
@@ -50,7 +50,11 @@ const Main = () => {
           }}
         />
 
-        <Callout>
+        <Callout
+          onPress={() =>
+            navigation.navigate('Profile', { github_username: 'santospatrick' })
+          }
+        >
           <View style={styles.callout}>
             <Text style={styles.devName}>Patrick Santos</Text>
             <Text style={styles.devBio}>
