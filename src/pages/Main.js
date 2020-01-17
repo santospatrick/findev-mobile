@@ -10,7 +10,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
 import api from '../services/api';
+import { connect, disconnect, subscribeToNewDevs } from '../services/socket';
 
 const Main = ({ navigation }) => {
   const [region, setRegion] = useState(null);
@@ -41,6 +43,22 @@ const Main = ({ navigation }) => {
     loadInitialPosition();
   }, []);
 
+  useEffect(() => {
+    subscribeToNewDevs(dev => setDevs([...devs, dev]));
+  }, [devs]);
+
+  function setupWebsocket() {
+    disconnect();
+
+    const { latitude, longitude } = region;
+
+    connect(
+      latitude,
+      longitude,
+      techs,
+    );
+  }
+
   async function loadDevs() {
     const { latitude, longitude } = region;
 
@@ -49,6 +67,7 @@ const Main = ({ navigation }) => {
     });
 
     setDevs(response.data);
+    setupWebsocket();
   }
 
   function handleRegionChanged(region) {
