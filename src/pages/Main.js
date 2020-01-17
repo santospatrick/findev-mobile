@@ -10,9 +10,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import api from '../services/api';
 
 const Main = ({ navigation }) => {
   const [region, setRegion] = useState(null);
+  const [devs, setDevs] = useState([]);
+  const [techs, setTechs] = useState('');
 
   useEffect(() => {
     async function loadInitialPosition() {
@@ -38,44 +41,67 @@ const Main = ({ navigation }) => {
     loadInitialPosition();
   }, []);
 
+  async function loadDevs() {
+    const { latitude, longitude } = region;
+
+    const response = await api.get('search', {
+      params: { latitude, longitude, techs },
+    });
+
+    setDevs(response.data);
+  }
+
+  function handleRegionChanged(region) {
+    setRegion(region);
+  }
+
   if (!region) {
     return null;
   }
 
   return (
     <>
-      <MapView style={{ flex: 1 }} initialRegion={region}>
-        <Marker coordinate={{ latitude: 37.785834, longitude: -122.406417 }}>
-          <Image
-            style={{
-              width: 54,
-              height: 54,
-              borderRadius: 4,
-              borderWidth: 4,
-              borderColor: '#fff',
+      <MapView
+        onRegionChangeComplete={handleRegionChanged}
+        style={{ flex: 1 }}
+        initialRegion={region}
+      >
+        {devs.map(dev => (
+          <Marker
+            key={dev._id}
+            coordinate={{
+              latitude: dev.location.coordinates[1],
+              longitude: dev.location.coordinates[0],
             }}
-            source={{
-              uri:
-                'https://avatars0.githubusercontent.com/u/13510169?s=460&v=4',
-            }}
-          />
-
-          <Callout
-            onPress={() =>
-              navigation.navigate('Profile', {
-                github_username: 'santospatrick',
-              })
-            }
           >
-            <View style={styles.callout}>
-              <Text style={styles.devName}>Patrick Santos</Text>
-              <Text style={styles.devBio}>
-                Front End Developer | React.js, React Native & Vue.js
-              </Text>
-              <Text style={styles.devTechs}>React.js, React Native</Text>
-            </View>
-          </Callout>
-        </Marker>
+            <Image
+              style={{
+                width: 54,
+                height: 54,
+                borderRadius: 4,
+                borderWidth: 4,
+                borderColor: '#fff',
+              }}
+              source={{
+                uri: dev.avatar_url,
+              }}
+            />
+
+            <Callout
+              onPress={() =>
+                navigation.navigate('Profile', {
+                  github_username: dev.github_username,
+                })
+              }
+            >
+              <View style={styles.callout}>
+                <Text style={styles.devName}>{dev.name}</Text>
+                <Text style={styles.devBio}>{dev.bio}</Text>
+                <Text style={styles.devTechs}>{dev.techs.join(', ')}</Text>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
       <View style={styles.searchForm}>
         <TextInput
@@ -84,8 +110,10 @@ const Main = ({ navigation }) => {
           placeholderTextColor="#999"
           autoCapitalize="words"
           autoCorrect={false}
+          value={techs}
+          onChangeText={setTechs}
         />
-        <TouchableOpacity style={styles.loadButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.loadButton} onPress={loadDevs}>
           <Icon name="my-location" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -114,7 +142,7 @@ const styles = StyleSheet.create({
   },
   searchForm: {
     position: 'absolute',
-    bottom: 20,
+    top: 20,
     left: 20,
     right: 20,
     zIndex: 5,
@@ -124,7 +152,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     backgroundColor: '#fff',
-    color: '#eee',
+    color: '#000',
     borderRadius: 25,
     paddingHorizontal: 20,
     fontSize: 16,
